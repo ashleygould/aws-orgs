@@ -65,7 +65,7 @@ def get_master_account_id(log, args, config):
     return master_account_id
 
 
-def get_spec_dir(log, args, config):
+def get_spec_dirs(log, args, config):
     """
     Determine the spec directory.  Try in order:
     cli option, config file, DEFAULT_SPEC_DIR.
@@ -76,9 +76,11 @@ def get_spec_dir(log, args, config):
         spec_dir = config['spec_dir']
     else:
         spec_dir = DEFAULT_SPEC_DIR
-    spec_dir = os.path.expanduser(spec_dir)
-    log.debug("spec_dir: %s" % spec_dir)
-    return spec_dir
+    if isinstance(spec_dir, str):
+        spec_dirs = spec_dir.split(',')
+    spec_dirs = [os.path.expanduser(d) for d in spec_dirs]
+    log.debug("spec_dirs:\n{}".format(yamlfmt(spec_dirs))
+    return spec_dirs
 
 
 def load_config(log, args):
@@ -94,7 +96,7 @@ def load_config(log, args):
     """
     config = scan_config_file(log, args)
     args['--master-account-id'] = get_master_account_id(log, args, config)
-    args['--spec-dir'] = get_spec_dir(log, args, config)
+    args['--spec-dir'] = get_spec_dirs(log, args, config)
     if not args['--org-access-role']:
         args['--org-access-role'] =  config.get('org_access_role')
     if not args['--auth-account-id']:
@@ -154,9 +156,10 @@ def validate_spec(log, args):
 
     # validate spec_files
     spec_dir = args['--spec-dir']
-    if not os.path.isdir(spec_dir):
-        log.error("spec_dir not found or not a directory: {}".format(spec_dir))
-        sys.exit(1)
+    for _dir in spec_dir:
+        if not os.path.isdir(_dir):
+            log.error("spec_dir not found or not a directory: {}".format(_dir))
+            sys.exit(1)
     validate_package_version(log, spec_dir)
     validator = file_validator(log)
     spec_object = {}

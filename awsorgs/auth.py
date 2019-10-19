@@ -28,6 +28,7 @@ Options:
   -V, --version             Display version info and exit.
   --config FILE             AWS Org config file in yaml format.
   --spec-dir PATH           Location of AWS Org specification file directory.
+                            Specify multiple spec dirs as comma separated list.
   --master-account-id ID    AWS account Id of the Org master account.    
   --auth-account-id ID      AWS account Id of the authentication account.
   --org-access-role ROLE    IAM role for traversing accounts in the Org.
